@@ -12,7 +12,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 
-open class ApiTest : KoinTest {
+class ApiTest : KoinTest {
 
     @get:Rule
     val koinTestRule = KoinTestRule.create {

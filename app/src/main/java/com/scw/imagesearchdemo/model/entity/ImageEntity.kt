@@ -3,7 +3,7 @@ package com.scw.imagesearchdemo.model.entity
 
 import com.google.gson.annotations.SerializedName
 
-data class ImageInfo(
+data class ImageEntity(
     @SerializedName("total")
     val total: Int = 0,
     @SerializedName("totalHits")
