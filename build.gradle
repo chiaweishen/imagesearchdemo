@@ -8,3 +8,16 @@ plugins {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+ext {
+    lifecycleVersion = '2.5.1'
+    pagingVersion = '3.1.1'
+    retrofitVersion = '2.9.0'
+    okhttpLoggingInterceptorVersion = '4.9.0'
+    coroutines = '1.6.4'
+    livedataVersion = '2.5.1'
+    viewmodelVersion = '2.5.1'
+    koinVersion = '3.2.0'
+    timberVersion = '5.0.1'
+    coinVersion = '2.1.0'
+}

@@ -33,11 +33,43 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
+    testImplementation "io.insert-koin:koin-test:$koinVersion"
+    testImplementation "io.insert-koin:koin-test-junit4:$koinVersion"
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines"
+
+    // architecture components
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$livedataVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$viewmodelVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion"
+    implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
+
+    // retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.retrofit2:retrofit-mock:$retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpLoggingInterceptorVersion"
+
+    // koin
+    implementation "io.insert-koin:koin-android:$koinVersion"
+    androidTestImplementation "io.insert-koin:koin-test-junit4:$koinVersion"
+
+    // timber
+    implementation "com.jakewharton.timber:timber:$timberVersion"
+
+    //Coin
+    implementation "io.coil-kt:coil:$coinVersion"
+    implementation("io.coil-kt:coil-svg:$coinVersion")
 }
