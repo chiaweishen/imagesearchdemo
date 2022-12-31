@@ -24,7 +24,7 @@ class ApiTest : KoinTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun test() = runTest {
-        pixabayApi.fetch("32459772-0cc6c885dd9f2082182070903", "Yellow Flower")
+        pixabayApi.fetch("Yellow Flower")
             .catch { e -> Assert.fail(e.message) }
             .collect {
                 Assert.assertTrue(it.total != 0)

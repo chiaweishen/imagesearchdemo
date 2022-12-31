@@ -16,14 +16,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.scw.imagesearchdemo.databinding.ActivityMainBinding
 import com.scw.imagesearchdemo.ext.dp
+import com.scw.imagesearchdemo.ui.adapter.MainPagingAdapter
+import com.scw.imagesearchdemo.ui.adapter.RecentAdapter
 import com.scw.imagesearchdemo.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     private val viewModel by viewModel<MainViewModel>()
     private lateinit var viewBinding: ActivityMainBinding
-    private lateinit var adapter: MainPagingAdapter
+    private lateinit var pagingAdapter: MainPagingAdapter
+    private lateinit var recentAdapter: RecentAdapter
+    private var searchView: SearchView? = null
     private var gridLayout = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,12 +36,14 @@ class MainActivity : AppCompatActivity() {
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
         initView()
+        observeData()
+        viewModel.loadRecentData()
     }
 
     private fun initView() {
         setSupportActionBar(viewBinding.toolbar)
-        adapter = MainPagingAdapter()
-        viewBinding.viewRecycler.adapter = adapter
+        pagingAdapter = MainPagingAdapter()
+        viewBinding.viewRecycler.adapter = pagingAdapter
         viewBinding.viewRecycler.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
                 outRect: Rect,
@@ -47,9 +54,24 @@ class MainActivity : AppCompatActivity() {
                 outRect.set(16.dp(), 0, 16.dp(), 0)
             }
         })
-        swapLayout()
+        swapImageLayout()
+
+        recentAdapter = RecentAdapter()
+        viewBinding.viewRecent.adapter = recentAdapter
+        viewBinding.viewRecent.layoutManager =
+            LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false)
+        recentAdapter.setListener(object : RecentAdapter.AdapterListener {
+            override fun onItemClickListener(text: String) {
+                searchView?.setQuery(text, true)
+            }
+        })
     }
 
+    private fun observeData() {
+        viewModel.recentLiveData.observe(this) {
+            recentAdapter.setData(it)
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -57,36 +79,42 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val searchView = menu.findItem(R.id.action_search).actionView as SearchView
-        searchView.isIconified = false
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        searchView = menu.findItem(R.id.action_search).actionView as? SearchView
+        searchView?.isIconified = false
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
+                searchView?.clearFocus()
                 hideKeyboard()
-                search(searchView.query.toString())
+                search(searchView?.query.toString())
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText.isNullOrEmpty()) {
-                    adapter.submitData(lifecycle, PagingData.empty())
-                }
+//                Timber.i("onQueryTextChange: $newText")
+//                if (newText.isNullOrEmpty()) {
+//                    pagingAdapter.submitData(lifecycle, PagingData.empty())
+//                }
                 return true
             }
 
         })
+        searchView?.setOnQueryTextFocusChangeListener { v, hasFocus ->
+            Timber.i("onSearchViewFocusChange: $hasFocus")
+            viewBinding.viewRecent.visibility = if (hasFocus) View.VISIBLE else View.GONE
+        }
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_layout -> {
-                swapLayout()
+                swapImageLayout()
             }
         }
         return true
     }
 
-    private fun swapLayout() {
+    private fun swapImageLayout() {
         if (gridLayout) {
             gridLayout = false
             viewBinding.viewRecycler.layoutManager =
@@ -100,9 +128,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun search(query: String) {
         lifecycleScope.launchWhenStarted {
-            viewModel.loadImages(query)
+            viewModel.search(query)
                 .collectLatest {
-                    adapter.submitData(it)
+                    pagingAdapter.submitData(it)
                 }
         }
     }

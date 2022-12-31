@@ -6,6 +6,7 @@ import coil.ImageLoaderFactory
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.scw.imagesearchdemo.di.module.apiModule
+import com.scw.imagesearchdemo.di.module.dbModule
 import com.scw.imagesearchdemo.di.module.repositoryModule
 import com.scw.imagesearchdemo.di.module.viewModelModule
 import com.scw.imagesearchdemo.util.MyDebugTree
@@ -36,7 +37,7 @@ class MyApplication : Application(), ImageLoaderFactory {
     private fun initKoinModules() {
         startKoin {
             androidContext(this@MyApplication)
-            modules(listOf(apiModule, repositoryModule, viewModelModule))
+            modules(listOf(apiModule, repositoryModule, viewModelModule, dbModule))
         }
     }
 
