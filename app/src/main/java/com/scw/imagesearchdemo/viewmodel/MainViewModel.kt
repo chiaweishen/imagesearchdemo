@@ -21,11 +21,16 @@ class MainViewModel(
     private val _recentLiveData = MutableLiveData<List<String>>()
     val recentLiveData: LiveData<List<String>> = _recentLiveData
 
-    fun search(query: String): Flow<PagingData<Image>> {
+    private val _imageLiveData = MutableLiveData<PagingData<Image>>()
+    val imageLiveData: LiveData<PagingData<Image>> = _imageLiveData
+
+    fun search(query: String) {
         viewModelScope.launch {
             recentRepository.addRecentQuery(query)
+            imageRepository.fetchImages(query).cachedIn(viewModelScope).collectLatest {
+                _imageLiveData.value = it
+            }
         }
-        return imageRepository.fetchImages(query).cachedIn(viewModelScope)
     }
 
     fun loadRecentData() {

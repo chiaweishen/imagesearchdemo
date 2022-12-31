@@ -20,7 +20,7 @@ import com.scw.imagesearchdemo.ext.dp
 import com.scw.imagesearchdemo.ui.adapter.MainPagingAdapter
 import com.scw.imagesearchdemo.ui.adapter.RecentAdapter
 import com.scw.imagesearchdemo.viewmodel.MainViewModel
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
@@ -85,6 +85,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.recentLiveData.observe(this) {
             recentAdapter.setData(it)
         }
+
+        viewModel.imageLiveData.observe(this) {
+            lifecycleScope.launch {
+                pagingAdapter.submitData(it)
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -144,12 +150,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun search(query: String) {
-        lifecycleScope.launchWhenStarted {
-            viewModel.search(query)
-                .collectLatest {
-                    pagingAdapter.submitData(it)
-                }
-        }
+        viewModel.search(query)
     }
 
     private fun hideKeyboard() {
