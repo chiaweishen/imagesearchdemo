@@ -10,10 +10,11 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.scw.imagesearchdemo.databinding.ActivityMainBinding
 import com.scw.imagesearchdemo.ext.dp
 import com.scw.imagesearchdemo.ui.adapter.MainPagingAdapter
@@ -36,8 +37,21 @@ class MainActivity : AppCompatActivity() {
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
         initView()
+        initLayoutStyle()
         observeData()
         viewModel.loadRecentData()
+    }
+
+    private fun initLayoutStyle() {
+        val remoteConfig = Firebase.remoteConfig
+        remoteConfig.fetchAndActivate()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val layoutStyle = remoteConfig.getDouble("layoutStyle")
+                    gridLayout = layoutStyle.toInt() == 1
+                    updateLayoutStyle()
+                }
+            }
     }
 
     private fun initView() {
@@ -54,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                 outRect.set(16.dp(), 0, 16.dp(), 0)
             }
         })
-        swapImageLayout()
+        updateLayoutStyle()
 
         recentAdapter = RecentAdapter()
         viewBinding.viewRecent.adapter = recentAdapter
@@ -115,14 +129,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun swapImageLayout() {
+        gridLayout = !gridLayout
+        updateLayoutStyle()
+    }
+
+    private fun updateLayoutStyle() {
         if (gridLayout) {
-            gridLayout = false
-            viewBinding.viewRecycler.layoutManager =
-                LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false)
-        } else {
-            gridLayout = true
             viewBinding.viewRecycler.layoutManager =
                 GridLayoutManager(applicationContext, 2, LinearLayoutManager.VERTICAL, false)
+        } else {
+            viewBinding.viewRecycler.layoutManager =
+                LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false)
         }
     }
 

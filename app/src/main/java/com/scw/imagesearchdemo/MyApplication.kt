@@ -5,6 +5,9 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.scw.imagesearchdemo.di.module.apiModule
 import com.scw.imagesearchdemo.di.module.dbModule
 import com.scw.imagesearchdemo.di.module.repositoryModule
@@ -26,6 +29,17 @@ class MyApplication : Application(), ImageLoaderFactory {
         INSTANCE = this
         initTimber()
         initKoinModules()
+        initRemoteConfig()
+    }
+
+    private fun initRemoteConfig() {
+        val remoteConfig = Firebase.remoteConfig
+        val configSettings = remoteConfigSettings {
+            minimumFetchIntervalInSeconds = 60
+//            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 60 else 3600
+        }
+        remoteConfig.setConfigSettingsAsync(configSettings)
+        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
     }
 
     private fun initTimber() {
